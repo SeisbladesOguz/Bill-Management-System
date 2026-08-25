@@ -9,6 +9,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -21,6 +22,7 @@ public class MainUI extends Application {
     private Stack<Scene> history = new Stack<>();
     private TableRepo tableRepo = new TableRepo();
     private ProductRepo productRepo = new ProductRepo();
+    private OrdersRepo ordersRepo = new OrdersRepo();
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -35,10 +37,12 @@ public class MainUI extends Application {
     }
 
     private void showTableListScene() {
-        FlowPane root = new FlowPane();
-        root.setHgap(15);
-        root.setVgap(15);
-        root.setPadding(new Insets(20));
+        BorderPane mainRoot = new BorderPane();
+        
+        FlowPane tablePane = new FlowPane();
+        tablePane.setHgap(15);
+        tablePane.setVgap(15);
+        tablePane.setPadding(new Insets(20));
 
         List<Tables> tables = tableRepo.getAllTables();
 
@@ -57,37 +61,14 @@ public class MainUI extends Application {
             btn.setOnAction(event -> {
                 showOrderDetailScene(table);
             });
-
-            root.getChildren().add(btn);
+            
+            tablePane.getChildren().add(btn);
         }
 
-        Scene scene = new Scene(root, 700, 450);
+        mainRoot.setCenter(tablePane);
+
+        Scene scene = new Scene(mainRoot, 800, 500); 
         primaryStage.setScene(scene);
-    }
-    
-    private void orderPane(Pane targetPane) {
-        List<Products> productElements = productRepo.getAllProducts();
-        
-        for (Products productElement : productElements) {
-            Button orderButton = new Button();
-            orderButton.setText(productElement.getProductName() + "\n" + productElement.getOrderPrice() + " TL");
-            orderButton.setPrefSize(150, 75);
-            orderButton.setStyle(
-                "-fx-background-color: #FF9800; " +       
-                "-fx-text-fill: white; " +               
-                "-fx-background-radius: 10px; " +          
-                "-fx-font-size: 13px; " +                 
-                "-fx-font-weight: bold; " + 
-                "-fx-text-alignment: center; " +          
-                "-fx-cursor: hand;"                        
-            );
-            
-            orderButton.setOnAction(event -> {
-                System.out.println("Ordered: " + productElement.getProductName());
-            });
-            
-            targetPane.getChildren().add(orderButton);
-        }
     }
 
     private void showOrderDetailScene(Tables table) {
@@ -111,12 +92,51 @@ public class MainUI extends Application {
         topBar.setAlignment(Pos.CENTER_LEFT);
         topBar.setPadding(new Insets(0, 0, 15, 0));
         root2.setTop(topBar); 
-        
+
+        TextArea receiptArea = createTextArea(root2);
+
         FlowPane productPane = new FlowPane(10, 10);
-        orderPane(productPane);
+        orderPane(table ,productPane, receiptArea);
         root2.setCenter(productPane);
 
-        Scene orderScene = new Scene(root2, 750, 500);
+        Scene orderScene = new Scene(root2, 850, 500);
         primaryStage.setScene(orderScene);
+    }
+    
+    private void orderPane(Tables table , Pane targetPane, TextArea receiptArea) {
+        List<Products> productElements = productRepo.getAllProducts();
+        
+        for (Products productElement : productElements) {
+            Button orderButton = new Button();
+            orderButton.setText(productElement.getProductName() + "\n" + productElement.getOrderPrice() + " TL");
+            orderButton.setPrefSize(150, 75);
+            orderButton.setStyle(
+                "-fx-background-color: #FF9800; " +       
+                "-fx-text-fill: white; " +               
+                "-fx-background-radius: 10px; " +          
+                "-fx-font-size: 13px; " +                 
+                "-fx-font-weight: bold; " + 
+                "-fx-text-alignment: center; " +          
+                "-fx-cursor: hand;"                        
+            );
+            
+            orderButton.setOnAction(event -> {
+                receiptArea.appendText(productElement.getProductName() + " - " + productElement.getOrderPrice() + " TL\n");
+                
+                ordersRepo.save(productElement, null);
+            });
+            
+            targetPane.getChildren().add(orderButton);
+        }
+    }
+    
+    public TextArea createTextArea(BorderPane targetPane) {
+        TextArea receiptArea = new TextArea();
+        receiptArea.setEditable(false);
+        receiptArea.setPrefWidth(240); 
+        receiptArea.setWrapText(true);
+        receiptArea.setStyle("-fx-font-family: 'Consolas'; -fx-font-size: 13px;");
+        targetPane.setRight(receiptArea);
+        return receiptArea;
     }
 }
