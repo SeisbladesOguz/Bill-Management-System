@@ -1,5 +1,7 @@
 package com.me.billManager;
 
+import com.me.billManager.uı.MainUI;
+
 import javafx.application.Application;
 
 public class App {

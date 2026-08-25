@@ -1,4 +1,4 @@
-package com.me.billManager;
+package com.me.billManager.entity;
 
 
 
@@ -59,6 +59,15 @@ public class Orders {
 		this.stiuation = stiuation;
 		this.profit = profit;
 	}
+	
+	public Orders(Tables table, Products product) {
+	    this.table = table;
+	    this.product = product;
+	    this.piece = 1; 
+	    this.purchasePrice = product.getPurchasePrice(); 
+	    this.salePrice = product.getOrderPrice();        
+	    this.profit = this.salePrice - this.purchasePrice; 
+}
 	
 	
 	

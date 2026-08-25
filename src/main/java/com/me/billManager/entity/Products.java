@@ -1,4 +1,4 @@
-package com.me.billManager;
+package com.me.billManager.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

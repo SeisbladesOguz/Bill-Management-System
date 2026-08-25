@@ -1,7 +1,13 @@
-package com.me.billManager;
+package com.me.billManager.uı;
 
 import java.util.List;
 import java.util.Stack;
+
+import com.me.billManager.entity.Products;
+import com.me.billManager.entity.Tables;
+import com.me.billManager.repo.TableRepo;
+import com.me.billManager.services.OrderService;
+import com.me.billManager.services.ProductService;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -21,8 +27,8 @@ public class MainUI extends Application {
     private Stage primaryStage;
     private Stack<Scene> history = new Stack<>();
     private TableRepo tableRepo = new TableRepo();
-    private ProductRepo productRepo = new ProductRepo();
-    private OrdersRepo ordersRepo = new OrdersRepo();
+    private ProductService productService = new ProductService();
+    private OrderService orderService = new OrderService();
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -30,7 +36,7 @@ public class MainUI extends Application {
         primaryStage.setTitle("Bill Management");
 
         tableRepo.initDefaultTablesIfEmpty();
-        productRepo.initDefaultProducts();
+        productService.defaultProducts();
         showTableListScene();
 
         primaryStage.show();
@@ -96,15 +102,15 @@ public class MainUI extends Application {
         TextArea receiptArea = createTextArea(root2);
 
         FlowPane productPane = new FlowPane(10, 10);
-        orderPane(table ,productPane, receiptArea);
+        orderPane(table, productPane, receiptArea);
         root2.setCenter(productPane);
 
         Scene orderScene = new Scene(root2, 850, 500);
         primaryStage.setScene(orderScene);
     }
     
-    private void orderPane(Tables table , Pane targetPane, TextArea receiptArea) {
-        List<Products> productElements = productRepo.getAllProducts();
+    private void orderPane(Tables table, Pane targetPane, TextArea receiptArea) {
+        List<Products> productElements = productService.getAllProducts();
         
         for (Products productElement : productElements) {
             Button orderButton = new Button();
@@ -123,7 +129,9 @@ public class MainUI extends Application {
             orderButton.setOnAction(event -> {
                 receiptArea.appendText(productElement.getProductName() + " - " + productElement.getOrderPrice() + " TL\n");
                 
-                ordersRepo.save(productElement, null);
+                orderService.orderManageSaveRepo(table, productElement);
+            
+               
             });
             
             targetPane.getChildren().add(orderButton);

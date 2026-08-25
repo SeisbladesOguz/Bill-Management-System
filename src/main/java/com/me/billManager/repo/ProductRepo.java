@@ -1,6 +1,9 @@
-package com.me.billManager;
+package com.me.billManager.repo;
 
 import java.util.List;
+
+import com.me.billManager.entity.Products;
+import com.me.billManager.util.JPAUtil;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;

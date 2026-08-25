@@ -1,4 +1,4 @@
-package com.me.billManager;
+package com.me.billManager.util;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
